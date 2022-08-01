@@ -19,16 +19,20 @@
  */
 #include QMK_KEYBOARD_H
 #include "print.h"
+#include "trackball_nano.h"
 
+uint16_t          dpi_array2[] = PLOOPY_DPI_OPTIONS;
 #define NUM_LOCK_BITMASK 0b01
 #define CAPS_LOCK_BITMASK 0b10
 
 // World record for fastest index finger tapping is 1092 taps per minute, which
 // is 55ms for a single tap.
 // https://recordsetter.com/world-record/index-finger-taps-minute/46066
-#define LED_CMD_TIMEOUT 25
-#define DELTA_X_THRESHOLD 60
-#define DELTA_Y_THRESHOLD 15
+#define LED_CMD_TIMEOUT 500
+#define DELTA_X_THRESHOLD 18
+#define DELTA_Y_THRESHOLD 8
+
+#define SCROLL_DPI 125
 
 typedef enum {
     // You could theoretically define 0b00 and send it by having a macro send
@@ -40,7 +44,7 @@ typedef enum {
 } led_cmd_t;
 
 // State
-static bool   scroll_enabled  = false;
+static bool   scroll_enabled  = true;
 static bool   num_lock_state  = false;
 static bool   caps_lock_state = false;
 static bool   in_cmd_window   = false;
@@ -85,6 +89,10 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 void keyboard_post_init_user(void) {
     num_lock_state  = host_keyboard_led_state().num_lock;
     caps_lock_state = host_keyboard_led_state().caps_lock;
+#   ifdef CONSOLE_ENABLE
+        uprint("SET_SCROLL_DPI)\n");
+#   endif 
+    pointing_device_set_cpi(SCROLL_DPI);
 }
 
 uint32_t command_timeout(uint32_t trigger_time, void *cb_arg) {
@@ -97,7 +105,19 @@ uint32_t command_timeout(uint32_t trigger_time, void *cb_arg) {
 #           ifdef CONSOLE_ENABLE
             uprint("TG_SCROLL)\n");
 #           endif
-            scroll_enabled = !scroll_enabled;
+                if(scroll_enabled){
+#                   ifdef CONSOLE_ENABLE
+                        uprint("SET_SCROLL_DPI)\n");
+#                   endif 
+                    pointing_device_set_cpi(SCROLL_DPI);
+                    scroll_enabled = false;
+                }else{
+#                   ifdef CONSOLE_ENABLE
+                        uprint("SET_MOUSE_DPI)\n");
+#                   endif
+                    pointing_device_set_cpi(dpi_array2[keyboard_config.dpi_config]);
+                    scroll_enabled = true;
+                }
             break;
         case CYC_DPI:
 #           ifdef CONSOLE_ENABLE

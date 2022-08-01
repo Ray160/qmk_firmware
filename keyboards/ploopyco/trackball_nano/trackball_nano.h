@@ -30,6 +30,15 @@ typedef union {
   };
 } keyboard_config_t;
 
+#ifndef PLOOPY_DPI_OPTIONS
+#    define PLOOPY_DPI_OPTIONS \
+        { 375, 750, 1375 }
+#    ifndef PLOOPY_DPI_DEFAULT
+#        define PLOOPY_DPI_DEFAULT 2
+#    endif
+#endif
+
+
 extern keyboard_config_t keyboard_config;
 
 enum ploopy_keycodes {

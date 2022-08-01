@@ -36,7 +36,7 @@ To configure/set your own array, there are two defines to use, `PLOOPY_DPI_OPTIO
 
 ```c
 #define PLOOPY_DPI_OPTIONS { 375, 750, 1375}
-#define PLOOPY_DPI_DEFAULT 1
+#define PLOOPY_DPI_DEFAULT 0
 ```
 
 The `PLOOPY_DPI_OPTIONS` array sets the values that you want to be able to cycle through, and the order they are in.  The "default" define lets the firmware know which of these options is the default and should be loaded by default.
